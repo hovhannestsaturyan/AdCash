@@ -18,14 +18,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(item, index) in stocks.purchases">
+                        <tr v-for="(item, index) in sortedProperties">
                             <td>{{ item.name }}</td>
                             <td>{{ item?.pivot.value }}</td>
                             <td>{{ item?.pivot.purchase_price }}</td>
                             <td>{{ item.unit_price }}</td>
-                            <td v-bind:class="[gain_loss(item)<0 ? 'text-danger' : gain_loss(item)>0 ? 'text-success' : '']">
-                                <span v-if="gain_loss(item)>0"> + </span>{{
-                                    stocks.currency + ' ' + gain_loss(item)
+                            <td v-bind:class="[item.gain_loss<0 ? 'text-danger' : item.gain_loss>0 ? 'text-success' : '']">
+                                <span v-if="item.gain_loss>0"> + </span>{{
+                                    stocks.currency + ' ' + item.gain_loss
                                 }}
                             </td>
                         </tr>
@@ -65,12 +65,15 @@ export default {
                 'Gain/Loss',
             ],
             stocks: '',
+            sortedProperties: {},
             errorMessage: '',
             currency: '',
             total: 0,
             invested: 0,
             performance: 0,
             cash_balance: 0,
+            sortDirection: 0,
+            sortBy: 'gain_loss',
         }
     },
     mounted() {
@@ -85,8 +88,23 @@ export default {
         }
     },
     methods: {
+        sort(head) {
+            this.sortBy = head
+            this.sortDirection *= -1
+        },
+        sortProps() {
+            const direction = this.sortDirection
+            const head = this.sortBy
+            this.sortedProperties = this.stocks?.purchases.sort(this.sortMethods(head, direction))
+        },
+        sortMethods(head, direction) {
+                    return direction === 1 ?
+                        (a, b) => Number(a[head]) - Number(b[head]):
+                        (a, b) => Number(b[head]) - Number(a[head])
+
+        },
         gain_loss(purchases) {
-            return purchases?.pivot.value * (Number(purchases.unit_price) - Number(purchases?.pivot.purchase_price))
+            purchases.gain_loss = purchases?.pivot.value * (Number(purchases.unit_price) - Number(purchases?.pivot.purchase_price));
         },
         details() {
             const that = this;
@@ -101,15 +119,20 @@ export default {
             });
         },
 
-        viewStocks() {
+         async  viewStocks() {
+            const that = this;
             this.errorMessage = '';
             let data = {stock_id: this.stock, client_id: this.client, value: this.stock_value};
             axios.get(import.meta.env.VITE_BASE_URL + '/api/clients/get-purchases/' + this.clientId, data)
-                .then(response => {
+                .then(async response => {
                     this.cash_balance = response.data.cash_balance;
                     this.currency = response.data.currency;
-                    this.stocks = response.data;
-                    this.details();
+                  response?.data?.purchases.map(function (item, key) {
+                        that.gain_loss(item)
+                    });
+                    this.stocks = await response.data;
+                  await  this.sortProps();
+                  await  this.details();
                 }).catch(error => {
                 this.errorMessage = error.response.data.message;
             });

@@ -9,9 +9,9 @@
         <tr v-for="(item, index) in clientData.data">
             <td>{{ item.name }}</td>
             <td>{{ item.cash_balance }}</td>
-            <td v-bind:class="[gain_loss(item.purchases)<0 ? 'text-danger' : gain_loss(item.purchases)>0 ? 'text-success' : '']">
-                <span v-if="gain_loss(item.purchases)>0"> + </span>{{
-                    item.currency + ' ' + gain_loss(item.purchases)
+            <td v-bind:class="[item.gain_loss<0 ? 'text-danger' : item.gain_loss>0 ? 'text-success' : '']">
+                <span v-if="item.gain_loss>0"> + </span>{{
+                    item.currency + ' ' + item.gain_loss
                 }}
             </td>
             <td>
@@ -65,13 +65,31 @@ export default {
             total_unit_price: 0,
             total_purchase_price: 0,
             clientName: String,
-            clientID: Number
+            clientID: Number,
+            sortBy: 'gain_loss',
+            sortDirection: 0,
+
         }
     },
     mounted() {
         this.getResults();
     },
     methods: {
+        sort(head) {
+            this.sortBy = head
+            this.sortDirection *= -1
+        },
+        sortProps() {
+            const direction = this.sortDirection
+            const head = this.sortBy
+            this.clientData?.data.sort(this.sortMethods(head, direction))
+        },
+        sortMethods(head, direction) {
+            return direction === 1 ?
+                (a, b) => Number(a[head]) - Number(b[head]):
+                (a, b) => Number(b[head]) - Number(a[head])
+
+        },
         getClientDetails(id, name) {
             this.clientName = name;
             this.clientID = id;
@@ -92,17 +110,22 @@ export default {
         gain_loss(purchases) {
             let total_unit_price = 0
             let total_purchase_price = 0
-            purchases.map(function (value, key) {
+            purchases.purchases.map(function (value, key) {
                 total_unit_price += value?.pivot?.value * Number(value.unit_price)
                 total_purchase_price += value?.pivot?.value *  Number(value?.pivot?.purchase_price)
             });
-            return (total_unit_price - total_purchase_price);
-
+            purchases.gain_loss = (total_unit_price - total_purchase_price);
         },
-        getResults(page = 1) {
+        async getResults(page = 1) {
+            const that = this;
             axios.get(import.meta.env.VITE_BASE_URL + '/api/clients?page=' + page)
-                .then(response => {
-                    this.clientData = response.data;
+                .then(async response => {
+                    response?.data?.data.map(function (item, key) {
+                        that.gain_loss(item)
+                    });
+                    this.clientData = await response.data;
+                    await  this.sortProps();
+
                 });
         },
     }
