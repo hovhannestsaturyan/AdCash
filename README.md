@@ -25,7 +25,7 @@ To stop all services only:
 
 ```
 # Make command
-make up
+make stop
 
 # Full command
 docker-compose stop
