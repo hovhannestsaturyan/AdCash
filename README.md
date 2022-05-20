@@ -11,6 +11,7 @@
 - ```git clone https://github.com/hovhannestsaturyan/AdCash.git```
 - ```cp .env.example .env```
 - ```composer install```
+- ```Create DB Adcash-Assignment ```
 - ```php artisan migrate```
 - ```cd client```
 - ```cp .env.example .env```
