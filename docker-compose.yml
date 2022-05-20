@@ -1,0 +1,75 @@
+version: '3'
+
+######### Services ###################################
+
+services:
+  # Server container
+  nginx:
+    build:
+      context: docker/dev/nginx
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www
+      - ./docker/dev/nginx/logs:/var/log/nginx
+    ports:
+      # Vue port
+      - 8080:80
+      # Laravel port
+      - 8081:81
+    depends_on:
+      - client
+      - php
+      - mysql
+
+  # PHP FastCGI Process Manager container
+  php:
+    build:
+      context: docker/dev/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/var/www/api
+
+  # Client container
+  client:
+    build:
+      context: docker/dev/client
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/var/www/client
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  # Database
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ADCASH_DB
+      MYSQL_USER: ADCASH_DB
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ADCASH_DB
+      PMA_PASSWORD: secret
+    volumes:
+      - ./upload.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "8888:80"
+
+######### Volumes ###################################
+
+volumes:
+  database:
+    driver: local
+  redis:
+    driver: local

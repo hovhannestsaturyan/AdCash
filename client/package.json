@@ -1,8 +1,8 @@
 {
-  "name": "vue-project",
-  "version": "0.0.0",
+  "name": "AdCash",
+  "version": "0.0.1",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --port 5050",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
@@ -10,7 +10,9 @@
   "dependencies": {
     "axios": "^0.27.2",
     "bootstrap": "^4.6.1",
+    "jquery": "^1.12.4",
     "laravel-vue-pagination": "^3.0.0",
+    "popper.js": "^1.16.1",
     "vue": "^3.2.33",
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.14",
