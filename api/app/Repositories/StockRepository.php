@@ -4,8 +4,8 @@ namespace App\Repositories;
 
 use App\Interfaces\StockInterface;
 use App\Models\Stock;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class StockRepository implements StockInterface
 {
@@ -22,7 +22,7 @@ class StockRepository implements StockInterface
      */
     public function index(bool $all): LengthAwarePaginator|Collection
     {
-        return !$all ? $this->model->paginate(10) : $this->model->get();
+        return !$all ? $this->model->orderBy('unit_price','desc')->paginate(10) : $this->model->orderBy('unit_price','desc')->get();
     }
 
     /**

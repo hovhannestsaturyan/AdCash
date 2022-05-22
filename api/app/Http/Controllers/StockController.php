@@ -22,6 +22,7 @@ final class StockController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return StocksCollection
      */
     public function index(Request $request): StocksCollection

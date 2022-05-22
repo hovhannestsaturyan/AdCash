@@ -7,7 +7,7 @@ use App\Entities\StoreStockEntity;
 use App\Entities\UpdateStockEntity;
 use App\Interfaces\StockInterface;
 use App\Models\Stock;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;

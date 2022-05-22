@@ -16,6 +16,7 @@ class PurchaseStockService
 {
     /**
      * @param ClientInterface $client
+     * @param StockInterface $stock
      */
     public function __construct(private ClientInterface $client, private StockInterface $stock)
     {
